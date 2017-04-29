@@ -2,7 +2,6 @@
 layout: post
 title:  "Starting with SCCs"
 date:   2017-04-29 02:20:00 +0530
-author: "Sarv Shakti Singh"
 ---
 
 Hello friends, this post is dedicated to knowing what **Strongly Connected Components(SCCs)** mean and for a given directed graph, what would be an effective algorithm to find out all the SCCs in the particular graph. We will also write the code that implements the above said algorithm.
