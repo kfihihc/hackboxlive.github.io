@@ -6,6 +6,10 @@ date:   2017-04-29 02:14:00 +0530
 
 Okay, so how to put this? I try hands on many things, some are interesting, some just seem to. And I want, by this blog, to keep a collection of these interesting things that I do, learn and enjoy! I will be adding stuff like editorials to certain problems which are interesting and/or their no good editorial exists on the Internet.
 
-Also, I am doing this for fun and learn ew and intersting stuff, which I will be regularly penning down.
+Also, I am doing this for fun and learn ew and interesting stuff, which I will be regularly penning down.
+
+One more thing before closing on this one, the blogs that I will be writing about solving any programming problem will not just be algorithmic, but about the way I paved my path onto solving it. The way I thought about the solution initially, why that was not optimal, the memory and the time constraints for a correct but not optimal solution, and all the resources that helped me get AC!
+
+Actually, the main reason I started this blog is that I wanted to put together all important resources on the Internet related to Competitive Programming. So, by doing more and more questions and getting feedback and suggestions from you guys, I will try to achieve my target.
 
 So, let's get started!
