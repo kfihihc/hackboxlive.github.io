@@ -5,8 +5,8 @@
     <description>The one who knows nothing</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sat, 29 Apr 2017 16:47:04 +0530</pubDate>
-    <lastBuildDate>Sat, 29 Apr 2017 16:47:04 +0530</lastBuildDate>
+    <pubDate>Sat, 29 Apr 2017 16:53:15 +0530</pubDate>
+    <lastBuildDate>Sat, 29 Apr 2017 16:53:15 +0530</lastBuildDate>
     <generator>Jekyll v3.4.3</generator>
     
       <item>
@@ -15,7 +15,8 @@
 
 &lt;p&gt;In an instant, one could tell this problem involves DP+bitmasking, but the question is what should be the state of this DP.&lt;/p&gt;
 
-&lt;p&gt;Well, the first solution that came to my mind was, given a dimension of the chocolate, can we fit a certain mask of the friends into that chocolate. This solution was perfect in its own way, but then the dp matrix would have been of the size 100X100X(2^15) = 327680000 which I thought would not get passed on the judge. Even if we overlook the size constraint, to calculate each of the states you need an extra O(n)~100 computation or so, (all of the above calculations can be wrong, as it is being written in an after-sleep mode and if someone finds a solution using this way, please do let me know)&lt;/p&gt;
+&lt;p&gt;Well, the first solution that came to my mind was, given a dimension of the chocolate, can we fit a certain mask of the friends into that chocolate. This solution was perfect in its own way, but then the dp matrix would have been of the size 100X100X(2^15) = 327680000 which I thought would not get passed on the judge. Even if we overlook the size constraint, to calculate each of the states you need an extra O(n)~100 computation or so (all of the above calculations can be wrong, as it is being written in an after-sleep mode and if someone finds a solution using this way, please do let me know), so I just dropped this idea.&lt;/p&gt;
+
 </description>
         <pubDate>Sat, 29 Apr 2017 13:36:00 +0530</pubDate>
         <link>http://localhost:4000/2017/04/29/SOCOLA-SPOJ.html</link>
