@@ -1,0 +1,10 @@
+---
+layout: post
+title:  "Why blog and what is it?"
+date:   2017-04-29 02:14:00 +0530
+author: "Sarv Shakti Singh"
+---
+
+Okay, so how to put this? I try hands on many things, some are interesting, some just seem to. And I want, by this blog, to keep a collection of these interesting things that I do, learn and enjoy! I will be adding stuff like editorials to certain problems which are interesting and/or their no good editorial exists on the Internet.
+
+Also, I am doing this for fun and learn ew and intersting stuff, which I will be regularly peenning down.

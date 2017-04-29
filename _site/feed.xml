@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Sarv Shakti Singh</title>
+    <description>The one who knows nothing</description>
+    <link>http://localhost:4000/</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sat, 29 Apr 2017 13:20:50 +0530</pubDate>
+    <lastBuildDate>Sat, 29 Apr 2017 13:20:50 +0530</lastBuildDate>
+    <generator>Jekyll v3.4.3</generator>
+    
+      <item>
+        <title>Starting with SCCs</title>
+        <description>&lt;p&gt;Hello friends, this post is dedicated to knowing what &lt;strong&gt;Strongly Connected Components(SCCs)&lt;/strong&gt; mean and for a given directed graph, what would be an effective algorithm to find out all the SCCs in the particular graph. We will also write the code that implements the above said algorithm.&lt;/p&gt;
+
+&lt;p&gt;I will try to make this post as easy as possible and interactive.&lt;/p&gt;
+
+&lt;p&gt;It is expected that you have some knowledge about implementing &lt;strong&gt;graphs using adjacency lists&lt;/strong&gt; and  &lt;strong&gt;depth-first-search(dfs)&lt;/strong&gt; in a directed graph in C or C++ beforehand.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-are-sccs&quot;&gt;What are SCCs?&lt;/h2&gt;
+
+&lt;p&gt;In a graph, two nodes(say A and B) are said to be strongly connected if there exists a path from A to B and and back again from B to A. In an undirected graph, if there exists a set of edges that form a path from A to B, then A and B are strongly connected. In a directed graph, there must exist two paths A-&amp;gt;B and B-&amp;gt;A for them to be strongly connected.&lt;/p&gt;
+
+&lt;p&gt;Hence, we can say that &lt;strong&gt;strongly connected components(SCCs)&lt;/strong&gt; are the set of vertices in a graph in which we can go from one vertex to any other vertex.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../../scc/screenshot-from-2016-08-06-07-37-161.jpg?raw=true&quot; alt=&quot;Just a graph&quot; title=&quot;Image1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The above graph has 3 different SCCs. We can see here that since 0 and 2 lie in the same SCC we can move from 0 to 2 and 2 to 0 again. But for vertices 1 and 5, we can move from 1 to 5 but we cannot come back to 1 from 5 since they do not belong to the same SCC.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../../scc/screenshot-from-2016-08-06-07-50-29.jpg?raw=true&quot; alt=&quot;Part of graph&quot; title=&quot;Image2&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now, let us consider the SCCs as individual vertices and create a new graph. Our graph would be reduced to the above graph. Here vertex 0 represents  vertices {0,1,2,3} of our graph, vertex 1 represents vertex {7} and vertex 2 represents vertices {4,5,6}.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;When any graph is reduced to such form, there will be at least one source vertex and at least one sink vertex.&lt;/strong&gt; That implies that our original graph will always have one source SCC and one sink SCC which further implies that there will always exist a path from any vertex in the source SCC to any vertex of the graph. And there will always exist a path from any vertex of the graph to any vertex of the sink SCC. (Try taking various examples :) )&lt;/p&gt;
+
+&lt;p&gt;Now let us see how to find out the SCCs of a given directed graph.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-naive-approach&quot;&gt;The naive approach&lt;/h2&gt;
+
+&lt;p&gt;The most naive approach that one could use here is taking all the pairs of vertices of the graph and applying dfs. If we can reach from one point to another then we need to apply dfs again from the second point to first. If this dfs is also fruitful, then we will add these two vertices in a SCC.&lt;/p&gt;
+
+&lt;p&gt;Now this approach will definitely take a lot of time since in worst case we will have to apply dfs 2 times for every pair of vertices. And since I am too lazy to calculate the exact complexity, we will call it close to O(V&lt;em&gt;V&lt;/em&gt;E). This is way too slow for bigger graphs.&lt;/p&gt;
+
+&lt;h2 id=&quot;kosarajus-algorithm&quot;&gt;Kosaraju’s Algorithm&lt;/h2&gt;
+
+&lt;p&gt;For some time, let us forget that there already exists an algorithm. Let us try to drive it out using our information.&lt;/p&gt;
+
+&lt;p&gt;We know what dfs does. Starting from a vertex, it visits all the vertices that are findable from that vertex. And we have learnt just now that “there will always exist a path from any vertex of a graph to any vertex of the sink SCC.” What does that mean?&lt;/p&gt;
+
+&lt;p&gt;Can it mean that if somehow we apply dfs from a vertex of the sink SCC, it will only traverse those nodes that lie in the sink SCC and not go out of the SCC? Yes. It does mean that. Because, the sink SCC will always have arrows pointed towards itself and no arrow leaves out of the sink SCC.&lt;/p&gt;
+
+&lt;p&gt;Now, the next thought is: What if we mark all the nodes ‘visited’ in this dfs and apply dfs again in that SCC that is nearest to the sink SCC? What will happen is in this dfs we will come to visit all the nodes of that SCC plus the nodes of the sink SCC but as we have already marked them ‘visited’, all the new nodes found during this dfs must belong to a new SCC.&lt;/p&gt;
+
+&lt;p&gt;Congratulations to ourselves, we just found out the most important thing. That is, if somehow, we could manage to find out vertices belonging to different SCCs and arrange them in a manner such that vertex of the sink SCC comes first, then vertex of the SCC nearest to it, and so on, and finally the vertex of the source SCC, then we could easily apply dfs at these nodes in the same order and the vertices that are covered in each dfs will be the vertices of the corresponding SCC.&lt;/p&gt;
+
+&lt;p&gt;Please re-read the above three paragraphs until it is clear why we are doing what we are doing.&lt;/p&gt;
+
+&lt;p&gt;Now, we will move on to finding the first part of our solution, that is, the arrangement of vertices such that the above ‘thing’ can be applied.&lt;/p&gt;
+
+&lt;p&gt;This can be solved using an interesting property of dfs. In a dfs, a vertex is marked visited when there is no other vertex reachable from it or when all other vertices reachable from it are already marked. So, it can be proved that the vertex that will be marked visited at last will be from the source SCC. The proof is left for the reader’s curiosity. :P&lt;/p&gt;
+
+&lt;p&gt;If we arrange the vertices of a graph in this order(that is, according to the ‘marked visited’ time criteria) the arrangement will be such that the last node will be from the source SCC and towards the first node, the nodes will be such that they belong at an apt distance from the source SCC.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;If we rank the vertices of the graph according to the rule that SCCs nearer to the source SCC are ranked higher, we will always find that from backside of the array formed after applying dfs from any point, there will be at least one vertex of a higher rank before any vertex of lower rank.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s take the following graph as example:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/../../../scc/screenshot-from-2016-08-06-07-37-161.jpg?raw=true&quot; alt=&quot;The first image again&quot; title=&quot;Image1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If we apply dfs at vertex 0,the order would be: {1,4,6,5,2,7,3,0} or {4,6,5,1,2,7,3,0} or similar. We find here that before 5, 7 will always be there. Before 7, at least one of {0,1,2,3} will be there and so on. It is left on the reader to check this by applying dfs from various vertices.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;What if we apply dfs and calculate this array on a graph whose edges are reversed?&lt;/strong&gt; Then, we will get an array of the vertices such that from the back side of the array, there will always exist at least one vertex of lower rank before any vertex of higher rank. The reason of this oppositeness is that when the graph is reversed(that is, edges are reversed) the sink SCC becomes source and vice versa. Also, all the other SCC also reverse their states(distance from source SCC becomes distance from sink SCC and vice versa).&lt;/p&gt;
+
+&lt;p&gt;Hence, by reversing a given directed graph and applying dfs on any vertex, and then applying dfs on the vertices that are not visited from the back side of the formed array, we will get the SCCs of the given graph.&lt;/p&gt;
+
+&lt;p&gt;This is Kosaraju’s Algorithm.&lt;/p&gt;
+
+&lt;h2 id=&quot;formal-algorithm&quot;&gt;Formal Algorithm:&lt;/h2&gt;
+
+&lt;p&gt;Given directed graph G,&lt;/p&gt;
+
+&lt;p&gt;1.Let Gʳᵉᵛ=G with all edges reversed&lt;/p&gt;
+
+&lt;p&gt;2.Run dfs on Gʳᵉᵛ and calculate f(v){finishing time for all vertices} for all v∈V&lt;/p&gt;
+
+&lt;p&gt;3.Run dfs on G (processing nodes in decreasing order of finishing times)&lt;/p&gt;
+
+&lt;h2 id=&quot;running-code&quot;&gt;Running Code:&lt;/h2&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;pre&gt;
+#include &amp;lt; bits/stdc++.h &amp;gt;
+#define MAXV 1000
+using namespace std;
+vector &amp;lt; int &amp;gt; g[MAXV], grev[MAXV];
+bool visited[MAXV];
+int leader[MAXV], finish[MAXV], t=0, V, E;
+void dfs_reverse(int src) {     &lt;span style=&quot;color: #00ff00;&quot;&gt;// running DFS on the reverse graph&lt;/span&gt; 
+    visited[src] = true;
+    for(int i = 0 ; i &amp;lt; grev[src].size() ; i++) {
+        if(!visited[grev[src][i]])
+            dfs_reverse(grev[src][i]);
+    }
+    t++;
+    finish[t] = src;
+}
+void dfs(int src) {    &lt;span style=&quot;color: #00ff00;&quot;&gt;// running DFS on the actual graph&lt;/span&gt; 
+    visited[src] = true; 
+    printf(&quot;%d &quot;,src); 
+    for(int i = 0 ; i &amp;lt; g[src].size() ; i++)    {
+        if(!visited[g[src][i]])
+            dfs(g[src][i]);
+    }
+}
+int main()  {
+    int i,u,v;
+    scanf(&quot;%d %d&quot;,&amp;amp;V,&amp;amp;E);  &lt;span style=&quot;color: #00ff00;&quot;&gt;// Enter the number of vertices &amp;amp; edges&lt;/span&gt; 
+    for(i = 0 ; i &amp;lt; E ; i++)  {
+        scanf(&quot;%d %d&quot;,&amp;amp;u,&amp;amp;v);
+        g[u].push_back(v);      &lt;span style=&quot;color: #00ff00;&quot;&gt;// Insert into the adjacency list of the graph &lt;/span&gt;
+        grev[v].push_back(u);   &lt;span style=&quot;color: #00ff00;&quot;&gt;// and the reverse graph&lt;/span&gt; 
+    }
+    &lt;span style=&quot;color: #00ff00;&quot;&gt;// run dfs on the reverse graph to get finishing time&lt;/span&gt; 
+    memset(visited, false, V*sizeof(bool)); 
+    for(i = 0 ; i &amp;lt; V ; i++)    {
+        if(!visited[i])
+            dfs_reverse(i);
+    }
+    &lt;span style=&quot;color: #00ff00;&quot;&gt;// run dfs on the actual graph in reverse finishing time&lt;/span&gt;
+    memset(visited, false, V*sizeof(bool)); 
+    int count = 0; 
+    for( i = V - 1 ; i &amp;gt;= 0 ;i--)  {
+        if(!visited[finish[i]]) { 
+            printf(&quot;SCC #%d: &quot;,++count); 
+            dfs(finish[i]); 
+            printf(&quot;\n&quot;); 
+        } 
+    }
+    return 0; 
+}
+&lt;/pre&gt;
+
+&lt;p&gt;This is the complete working code of finding out SCCs of a directed graph.&lt;/p&gt;
+
+&lt;p&gt;I tried as much as possible to give logical explanation of each and every point and tried avoiding any mathematical aspect in the proof or correctness of the algorithm and I hope you did understand this.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Simple problem for implementation of this is:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.spoj.com/problems/CAPCITY&quot;&gt;CAPCITY&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Thank you every one for reading this. Hope you enjoyed reading this. :) Any type of questions will be entertained.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 29 Apr 2017 02:20:00 +0530</pubDate>
+        <link>http://localhost:4000/2017/04/29/starting-with-scc.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/04/29/starting-with-scc.html</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Why blog and what is it?</title>
+        <description>&lt;p&gt;Okay, so how to put this? I try hands on many things, some are interesting, some just seem to. And I want, by this blog, to keep a collection of these interesting things that I do, learn and enjoy! I will be adding stuff like editorials to certain problems which are interesting and/or their no good editorial exists on the Internet.&lt;/p&gt;
+
+&lt;p&gt;Also, I am doing this for fun and learn ew and intersting stuff, which I will be regularly peenning down.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 29 Apr 2017 02:14:00 +0530</pubDate>
+        <link>http://localhost:4000/2017/04/29/why-this.html</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/04/29/why-this.html</guid>
+        
+        
+      </item>
+    
+  </channel>
+</rss>

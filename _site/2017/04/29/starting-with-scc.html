@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Starting with SCCs</title>
+  <meta name="description" content="Hello friends, this post is dedicated to knowing what Strongly Connected Components(SCCs) mean and for a given directed graph, what would be an effective alg...">
+  <link href='https://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic|Source+Sans+Pro:400,700,200,300|Josefin+Sans:400,600,700,300' rel='stylesheet' type='text/css'>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="canonical" href="http://localhost:4000/2017/04/29/starting-with-scc.html">
+  <link rel="alternate" type="application/rss+xml" title="Sarv Shakti Singh" href="http://localhost:4000/feed.xml">
+</head>
+
+
+  <body>
+
+    <div class="wrapper">
+  <center> <a href="/index.html"><div class="site-title">   Sarv Shakti Singh </div></a></center>
+</div>
+<div class="wrapper site-description">
+<center>  The one who knows nothing </center>
+</div>
+<div class="wrapper">
+  <div class="trigger site-navigation">
+    <a class="page-link" href="http://localhost:4000">HOME</a>
+
+    
+    
+
+    <span class="exclamationMark">/</span><a class="page-link" href="/about/">About</a>
+    
+    
+    
+
+    <span class="exclamationMark">/</span><a class="page-link" href="/achievements/">Achievements</a>
+    
+    
+    
+
+    <span class="exclamationMark">/</span><a class="page-link" href="/extras/">Extras</a>
+    
+    
+    
+    
+    
+    
+    
+
+    <span class="exclamationMark">/</span><a class="page-link" href="/projects/">Projects</a>
+    
+    
+    
+    
+  </div>
+</div>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline"><a class="post-title-link"  href="/2017/04/29/starting-with-scc.html">Starting with SCCs</a></h1>
+  <center>  <p class="post-meta"><time datetime="2017-04-29T02:20:00+05:30" itemprop="datePublished">Apr 29, 2017</time></p>
+    
+     <div class="">
+       <center><p ><strong><span class="authorKeyword">Author</span><span class="small-site-title"> <h2 style="letter-spacing: 3px !important;
+       text-transform: uppercase !important;">Sarv Shakti Singh</h2></span></strong></p></center>
+
+     </div>
+     
+   </center>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p>Hello friends, this post is dedicated to knowing what <strong>Strongly Connected Components(SCCs)</strong> mean and for a given directed graph, what would be an effective algorithm to find out all the SCCs in the particular graph. We will also write the code that implements the above said algorithm.</p>
+
+<p>I will try to make this post as easy as possible and interactive.</p>
+
+<p>It is expected that you have some knowledge about implementing <strong>graphs using adjacency lists</strong> and  <strong>depth-first-search(dfs)</strong> in a directed graph in C or C++ beforehand.</p>
+
+<h2 id="what-are-sccs">What are SCCs?</h2>
+
+<p>In a graph, two nodes(say A and B) are said to be strongly connected if there exists a path from A to B and and back again from B to A. In an undirected graph, if there exists a set of edges that form a path from A to B, then A and B are strongly connected. In a directed graph, there must exist two paths A-&gt;B and B-&gt;A for them to be strongly connected.</p>
+
+<p>Hence, we can say that <strong>strongly connected components(SCCs)</strong> are the set of vertices in a graph in which we can go from one vertex to any other vertex.</p>
+
+<p><img src="/../../../scc/screenshot-from-2016-08-06-07-37-161.jpg?raw=true" alt="Just a graph" title="Image1" /></p>
+
+<p>The above graph has 3 different SCCs. We can see here that since 0 and 2 lie in the same SCC we can move from 0 to 2 and 2 to 0 again. But for vertices 1 and 5, we can move from 1 to 5 but we cannot come back to 1 from 5 since they do not belong to the same SCC.</p>
+
+<p><img src="/../../../scc/screenshot-from-2016-08-06-07-50-29.jpg?raw=true" alt="Part of graph" title="Image2" /></p>
+
+<p>Now, let us consider the SCCs as individual vertices and create a new graph. Our graph would be reduced to the above graph. Here vertex 0 represents  vertices {0,1,2,3} of our graph, vertex 1 represents vertex {7} and vertex 2 represents vertices {4,5,6}.</p>
+
+<p><strong>When any graph is reduced to such form, there will be at least one source vertex and at least one sink vertex.</strong> That implies that our original graph will always have one source SCC and one sink SCC which further implies that there will always exist a path from any vertex in the source SCC to any vertex of the graph. And there will always exist a path from any vertex of the graph to any vertex of the sink SCC. (Try taking various examples :) )</p>
+
+<p>Now let us see how to find out the SCCs of a given directed graph.</p>
+
+<h2 id="the-naive-approach">The naive approach</h2>
+
+<p>The most naive approach that one could use here is taking all the pairs of vertices of the graph and applying dfs. If we can reach from one point to another then we need to apply dfs again from the second point to first. If this dfs is also fruitful, then we will add these two vertices in a SCC.</p>
+
+<p>Now this approach will definitely take a lot of time since in worst case we will have to apply dfs 2 times for every pair of vertices. And since I am too lazy to calculate the exact complexity, we will call it close to O(V<em>V</em>E). This is way too slow for bigger graphs.</p>
+
+<h2 id="kosarajus-algorithm">Kosaraju’s Algorithm</h2>
+
+<p>For some time, let us forget that there already exists an algorithm. Let us try to drive it out using our information.</p>
+
+<p>We know what dfs does. Starting from a vertex, it visits all the vertices that are findable from that vertex. And we have learnt just now that “there will always exist a path from any vertex of a graph to any vertex of the sink SCC.” What does that mean?</p>
+
+<p>Can it mean that if somehow we apply dfs from a vertex of the sink SCC, it will only traverse those nodes that lie in the sink SCC and not go out of the SCC? Yes. It does mean that. Because, the sink SCC will always have arrows pointed towards itself and no arrow leaves out of the sink SCC.</p>
+
+<p>Now, the next thought is: What if we mark all the nodes ‘visited’ in this dfs and apply dfs again in that SCC that is nearest to the sink SCC? What will happen is in this dfs we will come to visit all the nodes of that SCC plus the nodes of the sink SCC but as we have already marked them ‘visited’, all the new nodes found during this dfs must belong to a new SCC.</p>
+
+<p>Congratulations to ourselves, we just found out the most important thing. That is, if somehow, we could manage to find out vertices belonging to different SCCs and arrange them in a manner such that vertex of the sink SCC comes first, then vertex of the SCC nearest to it, and so on, and finally the vertex of the source SCC, then we could easily apply dfs at these nodes in the same order and the vertices that are covered in each dfs will be the vertices of the corresponding SCC.</p>
+
+<p>Please re-read the above three paragraphs until it is clear why we are doing what we are doing.</p>
+
+<p>Now, we will move on to finding the first part of our solution, that is, the arrangement of vertices such that the above ‘thing’ can be applied.</p>
+
+<p>This can be solved using an interesting property of dfs. In a dfs, a vertex is marked visited when there is no other vertex reachable from it or when all other vertices reachable from it are already marked. So, it can be proved that the vertex that will be marked visited at last will be from the source SCC. The proof is left for the reader’s curiosity. :P</p>
+
+<p>If we arrange the vertices of a graph in this order(that is, according to the ‘marked visited’ time criteria) the arrangement will be such that the last node will be from the source SCC and towards the first node, the nodes will be such that they belong at an apt distance from the source SCC.</p>
+
+<p><strong>If we rank the vertices of the graph according to the rule that SCCs nearer to the source SCC are ranked higher, we will always find that from backside of the array formed after applying dfs from any point, there will be at least one vertex of a higher rank before any vertex of lower rank.</strong></p>
+
+<p>Let’s take the following graph as example:</p>
+
+<p><img src="/../../../scc/screenshot-from-2016-08-06-07-37-161.jpg?raw=true" alt="The first image again" title="Image1" /></p>
+
+<p>If we apply dfs at vertex 0,the order would be: {1,4,6,5,2,7,3,0} or {4,6,5,1,2,7,3,0} or similar. We find here that before 5, 7 will always be there. Before 7, at least one of {0,1,2,3} will be there and so on. It is left on the reader to check this by applying dfs from various vertices.</p>
+
+<p><strong>What if we apply dfs and calculate this array on a graph whose edges are reversed?</strong> Then, we will get an array of the vertices such that from the back side of the array, there will always exist at least one vertex of lower rank before any vertex of higher rank. The reason of this oppositeness is that when the graph is reversed(that is, edges are reversed) the sink SCC becomes source and vice versa. Also, all the other SCC also reverse their states(distance from source SCC becomes distance from sink SCC and vice versa).</p>
+
+<p>Hence, by reversing a given directed graph and applying dfs on any vertex, and then applying dfs on the vertices that are not visited from the back side of the formed array, we will get the SCCs of the given graph.</p>
+
+<p>This is Kosaraju’s Algorithm.</p>
+
+<h2 id="formal-algorithm">Formal Algorithm:</h2>
+
+<p>Given directed graph G,</p>
+
+<p>1.Let Gʳᵉᵛ=G with all edges reversed</p>
+
+<p>2.Run dfs on Gʳᵉᵛ and calculate f(v){finishing time for all vertices} for all v∈V</p>
+
+<p>3.Run dfs on G (processing nodes in decreasing order of finishing times)</p>
+
+<h2 id="running-code">Running Code:</h2>
+
+<table>
+  <tbody>
+    <tr>
+    </tr>
+  </tbody>
+</table>
+
+<pre>
+#include &lt; bits/stdc++.h &gt;
+#define MAXV 1000
+using namespace std;
+vector &lt; int &gt; g[MAXV], grev[MAXV];
+bool visited[MAXV];
+int leader[MAXV], finish[MAXV], t=0, V, E;
+void dfs_reverse(int src) {     <span style="color: #00ff00;">// running DFS on the reverse graph</span> 
+    visited[src] = true;
+    for(int i = 0 ; i &lt; grev[src].size() ; i++) {
+        if(!visited[grev[src][i]])
+            dfs_reverse(grev[src][i]);
+    }
+    t++;
+    finish[t] = src;
+}
+void dfs(int src) {    <span style="color: #00ff00;">// running DFS on the actual graph</span> 
+    visited[src] = true; 
+    printf("%d ",src); 
+    for(int i = 0 ; i &lt; g[src].size() ; i++)    {
+        if(!visited[g[src][i]])
+            dfs(g[src][i]);
+    }
+}
+int main()  {
+    int i,u,v;
+    scanf("%d %d",&amp;V,&amp;E);  <span style="color: #00ff00;">// Enter the number of vertices &amp; edges</span> 
+    for(i = 0 ; i &lt; E ; i++)  {
+        scanf("%d %d",&amp;u,&amp;v);
+        g[u].push_back(v);      <span style="color: #00ff00;">// Insert into the adjacency list of the graph </span>
+        grev[v].push_back(u);   <span style="color: #00ff00;">// and the reverse graph</span> 
+    }
+    <span style="color: #00ff00;">// run dfs on the reverse graph to get finishing time</span> 
+    memset(visited, false, V*sizeof(bool)); 
+    for(i = 0 ; i &lt; V ; i++)    {
+        if(!visited[i])
+            dfs_reverse(i);
+    }
+    <span style="color: #00ff00;">// run dfs on the actual graph in reverse finishing time</span>
+    memset(visited, false, V*sizeof(bool)); 
+    int count = 0; 
+    for( i = V - 1 ; i &gt;= 0 ;i--)  {
+        if(!visited[finish[i]]) { 
+            printf("SCC #%d: ",++count); 
+            dfs(finish[i]); 
+            printf("\n"); 
+        } 
+    }
+    return 0; 
+}
+</pre>
+
+<p>This is the complete working code of finding out SCCs of a directed graph.</p>
+
+<p>I tried as much as possible to give logical explanation of each and every point and tried avoiding any mathematical aspect in the proof or correctness of the algorithm and I hope you did understand this.</p>
+
+<p><strong>Simple problem for implementation of this is:</strong></p>
+
+<p><a href="http://www.spoj.com/problems/CAPCITY">CAPCITY</a></p>
+
+<p>Thank you every one for reading this. Hope you enjoyed reading this. :) Any type of questions will be entertained.</p>
+
+  </div>
+
+  <footer class="postNavigation">
+  
+    <a class="postPrev" href="/2017/04/29/why-this.html">
+        &laquo; Why blog and what is it?
+    </a>
+  
+  
+  </footer>
+
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading small-site-title">&copy;Sarv Shakti Singh</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list footer-content">
+          <li>Powered By <a href="http://github.com/hackboxlive">hackboxlive</a></li>
+          <li>Made with <i class="fa fa-heart"></i> on <a href="http://jekyllrb.com"><span style="color:black">{ { Jekyll } }</a></span></li>
+
+
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2 footer-content">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/hackboxlive"><span class="icon icon--github"><svg viewBox="0 0 16 16"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">hackboxlive</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://linkedin.com/sarv-shakti-singh"><span class="icon icon--twitter"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></span><span class="username">sarv-shakti-singh</span></a>
+
+          </li>
+          
+
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3 footer-content">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://facebook.com/sarvshakt"><span class="icon icon--twitter"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg></span><span class="username">sarvshakt</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/shakti_sarv"><span class="icon icon--twitter"><svg viewBox="0 0 16 16"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">shakti_sarv</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
